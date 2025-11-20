@@ -69,7 +69,7 @@ class Api::V1::JobsController < ApplicationController
         }
       }
     ).merge(
-      images: @job.images.map { |img| rails_blob_url(img, only_path: false) }
+      images: @job.images.map { |img| blob_url(img) }
     ), status: :ok
   end
 
