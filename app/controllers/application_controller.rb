@@ -1,7 +1,27 @@
 class ApplicationController < ActionController::API
+  include ActionController::MimeResponds
+  include Rails.application.routes.url_helpers
+  
   before_action :authenticate_request
+  before_action :set_active_storage_url_options
 
   private
+
+  def set_active_storage_url_options
+    ActiveStorage::Current.url_options = {
+      protocol: request.protocol,
+      host: request.host,
+      port: request.port
+    }
+  end
+
+  def blob_url(attachment_or_blob)
+    # Handle both ActiveStorage::Attachment and ActiveStorage::Blob
+    blob = attachment_or_blob.is_a?(ActiveStorage::Attachment) ? attachment_or_blob.blob : attachment_or_blob
+    return nil unless blob.present?
+    # Construct the ActiveStorage URL manually
+    "#{request.protocol}#{request.host_with_port}/rails/active_storage/blobs/#{blob.signed_id}/#{blob.filename}"
+  end
 
   def authenticate_request
     header = request.headers['Authorization']
