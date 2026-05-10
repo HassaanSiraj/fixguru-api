@@ -1,11 +1,10 @@
 # Create Admin User
-admin = User.create!(
-  email: 'admin@fixguru.com',
-  password: 'admin123',
-  password_confirmation: 'admin123',
-  role: 'admin',
-  status: 'active'
-)
+admin = User.find_or_create_by!(email: 'admin@fixguru.com') do |u|
+  u.password = 'admin123'
+  u.password_confirmation = 'admin123'
+  u.role = 'admin'
+  u.status = 'active'
+end
 
 puts "Created admin user: #{admin.email}"
 
@@ -30,28 +29,33 @@ end
 puts "Created #{Category.count} categories"
 
 # Create sample service seeker
-seeker = User.create!(
-  email: 'seeker@example.com',
-  password: 'password123',
-  password_confirmation: 'password123',
-  role: 'service_seeker',
-  status: 'active'
-)
-seeker.subscriptions.create!(plan_type: 'free', status: 'active', start_date: Date.current)
+seeker = User.find_or_create_by!(email: 'seeker@example.com') do |u|
+  u.password = 'password123'
+  u.password_confirmation = 'password123'
+  u.role = 'service_seeker'
+  u.status = 'active'
+end
+seeker.subscriptions.find_or_create_by!(plan_type: 'free') do |s|
+  s.status = 'active'
+  s.start_date = Date.current
+end
 
 puts "Created sample seeker: #{seeker.email}"
 
 # Create sample service provider
-provider = User.create!(
-  email: 'provider@example.com',
-  password: 'password123',
-  password_confirmation: 'password123',
-  role: 'service_provider',
-  status: 'active'
-)
-provider.subscriptions.create!(plan_type: 'standard', status: 'active', start_date: Date.current, end_date: Date.current + 1.month)
+provider = User.find_or_create_by!(email: 'provider@example.com') do |u|
+  u.password = 'password123'
+  u.password_confirmation = 'password123'
+  u.role = 'service_provider'
+  u.status = 'active'
+end
+provider.subscriptions.find_or_create_by!(plan_type: 'standard') do |s|
+  s.status = 'active'
+  s.start_date = Date.current
+  s.end_date = Date.current + 1.month
+end
 
-provider_profile = provider.build_provider_profile(
+provider_profile = provider.provider_profile || provider.build_provider_profile(
   full_name: 'Ahmed Ali',
   cnic_number: '12345-1234567-1',
   skills: 'Plumbing, Electrical, General Repairs',

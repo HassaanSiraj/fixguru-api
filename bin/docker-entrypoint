@@ -1,8 +1,9 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database
-if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
-  ./bin/rails db:prepare
-fi
+# Migrations are intentionally NOT run here.
+# In ECS, multiple tasks start concurrently — running db:migrate inside
+# the entrypoint causes race conditions against RDS. Instead, run
+# migrations as a one-off ECS task in your CI/CD pipeline before
+# deploying the new service revision.
 
 exec "${@}"
